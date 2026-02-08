@@ -388,6 +388,7 @@ All beads ready for implementation. Recommend 2 agents: one on auth chain, one o
 - Do NOT approve vague beads — push back for clarity
 - Do NOT rubber-stamp — actually read each bead
 - Do NOT implement during review — this is planning only
+- Cast a wider net: check if the bead set misses areas that will be affected by the planned changes
 </constraints>
 ```
 
@@ -416,15 +417,24 @@ DCG (Destructive Command Guard) is active as a hook. If it blocks a command:
 - For dangerous ops (force push, rm -rf), use `slb run "<command>"` for two-person auth
 </safety_tools>
 
+<exploration_mindset>
+When implementing, don't just tunnel-vision on the bead's files:
+- Before coding, randomly explore 2-3 neighboring files to build context
+- Trace the execution flow upstream and downstream of your change
+- Check if similar patterns exist elsewhere — learn from them or fix them
+- Cast a wider net: your change might break assumptions in files you didn't expect
+</exploration_mindset>
+
 <steps>
 1. Run `bd ready` to see beads with no blockers
 2. Check Agent Mail for any claimed work or active discussions
 3. Pick a bead matching your skills — prefer highest priority
 4. Claim it: `bd update <id> --status=in_progress`
 5. Announce via Agent Mail: "Claiming <bead-id>: <title>"
-6. Implement the task fully
-7. Close when done: `bd close <id> --reason="Completed"`
-8. Repeat from step 1
+6. Explore neighboring code before diving in (see exploration_mindset)
+7. Implement the task fully
+8. Close when done: `bd close <id> --reason="Completed"`
+9. Repeat from step 1
 </steps>
 
 <constraints>
@@ -435,33 +445,175 @@ DCG (Destructive Command Guard) is active as a hook. If it blocks a command:
 </constraints>
 ```
 
-### Fresh Eyes Review
+### Fresh Eyes: Bug Hunt
 ```
 <instructions>
-Review recent changes as if seeing the code for the first time. Catch what the author missed.
+Randomly explore the codebase with fresh eyes. Trace execution flows, find bugs and mistakes that familiarity blinds you to.
 </instructions>
 
+<exploration_mode>
+Do NOT start from recent diffs or commits. Instead, randomly walk the codebase:
+1. Pick a source file at random — not one you've recently touched
+2. Read it deeply. Understand its purpose in the larger system
+3. Trace its imports — follow the dependency chain up and down
+4. Trace its execution flow — what calls it? What does it call?
+5. Once you understand the context, scrutinize it with fresh eyes
+6. Move to another random file. Repeat.
+
+Cast a wide net. Don't restrict yourself to recently changed code — bugs live everywhere, especially in code nobody has looked at in a while.
+</exploration_mode>
+
+<what_to_find>
+- Obvious bugs, logic errors, off-by-one mistakes
+- Silly mistakes: typos in variable names, wrong comparisons, swapped arguments
+- Missing error handling, uncaught exceptions
+- Race conditions, state corruption
+- Dead code paths that should have been removed
+- Incorrect assumptions in comments vs actual behavior
+</what_to_find>
+
 <steps>
-1. Run `git diff HEAD~5` or check recent commits
-2. For each changed file, read the diff carefully
-3. Look for: typos, logic errors, missing edge cases, unclear naming
-4. Check: does this match the stated intent in the bead or commit message?
-5. If issues found, either fix directly or create a bead
-6. Post findings via Agent Mail if other agents are affected
+1. List all source directories and pick entry points at random
+2. For each file: read → trace → understand → scrutinize
+3. When you find an issue, fix it immediately if safe, or create a bead
+4. Keep a running tally of files explored and issues found
+5. Aim for breadth — explore at least 10-15 files across different modules
+6. Post findings via Agent Mail
 </steps>
 
-<checklist>
-- [ ] Variable names are clear and consistent
-- [ ] Error handling covers failure cases
-- [ ] No hardcoded values that should be config
-- [ ] No commented-out dead code
-- [ ] Tests cover the new behavior
-</checklist>
+<output_format>
+## Bug Hunt Results
+
+Files explored: <count>
+Issues found: <count>
+Fixed: <list with brief descriptions>
+Beads created: <list>
+Clean files: <list of files that looked solid>
+</output_format>
 
 <constraints>
-- Do NOT rubber-stamp — actually read the code
-- Do NOT rewrite working code for style preferences alone
-- Do NOT skip files because they look fine at a glance
+- Do NOT only look at recent changes — the whole codebase is fair game
+- Do NOT skim — read each file thoroughly before moving on
+- Do NOT rewrite working code for style — focus on actual bugs
+- Do NOT skip test files — they have bugs too
+- Comply with ALL rules in AGENTS.md and best practice guides referenced there
+</constraints>
+```
+
+### Fresh Eyes: Peer Review
+```
+<instructions>
+Review code written by other agents. Go deep on root causes, not just symptoms. Cast a wider net than recent commits.
+</instructions>
+
+<approach>
+This is adversarial review — assume bugs exist and hunt for them.
+Don't restrict yourself to the latest commits. Cast a wider net:
+- Check git log for all recent agent work across the last week
+- Look at files those commits touched AND their neighbors
+- Follow the ripple — a change in one file can break assumptions elsewhere
+- Use first-principles analysis: does this code actually do what it claims?
+</approach>
+
+<what_to_find>
+- Bugs, errors, logic problems in agent-written code
+- Inefficiencies — O(n²) where O(n) would work, unnecessary allocations
+- Security problems — injection, auth bypass, data exposure, path traversal
+- Reliability issues — missing retries, no timeouts, silent failures
+- Incorrect error handling — swallowed errors, wrong error types
+- Broken assumptions — code that works by accident, not by design
+</what_to_find>
+
+<root_cause_analysis>
+When you find an issue, don't just patch the symptom:
+1. What is the surface-level bug?
+2. WHY does this bug exist? What assumption failed?
+3. Are there other places with the same flawed assumption?
+4. What systemic fix prevents this class of bug?
+</root_cause_analysis>
+
+<steps>
+1. Run `git log --all --oneline --since="7 days ago"` to see all recent work
+2. Group commits by author/agent
+3. For each agent's work: read the changes AND surrounding code
+4. Trace execution flows through modified code
+5. Apply root-cause analysis to every issue found
+6. Fix issues or create beads with detailed root-cause descriptions
+7. Post review findings via Agent Mail, tagging relevant agents
+</steps>
+
+<constraints>
+- Do NOT restrict yourself to the latest commits — cast a wider net and go deep
+- Do NOT just flag issues — diagnose root causes
+- Do NOT skip security review — treat every input as hostile
+- Do NOT assume other agents tested their code thoroughly
+- Use ultrathink for complex analysis
+</constraints>
+```
+
+### Fresh Eyes: UX Polish
+```
+<instructions>
+Scrutinize the application from a user's perspective. Find everything that feels sub-optimal, clunky, or unpolished. The quality bar is Stripe-level.
+</instructions>
+
+<mindset>
+You are a demanding user encountering this app for the first time.
+Everything that makes you pause, squint, or feel confused is a bug.
+Everything that could be smoother, slicker, or more intuitive is an opportunity.
+</mindset>
+
+<what_to_scrutinize>
+- **Workflows:** Walk through every user-facing flow end-to-end. Where does it feel clunky?
+- **UI polish:** Spacing, alignment, typography, color consistency, loading states
+- **Error states:** What happens when things go wrong? Are error messages helpful or cryptic?
+- **Edge cases:** Empty states, long strings, slow connections, rapid clicks
+- **Micro-interactions:** Hover states, transitions, feedback on actions
+- **Copy:** Is the text clear, concise, and consistent? Any jargon leaking through?
+- **Performance feel:** Does anything feel sluggish? Unnecessary spinners?
+- **Accessibility:** Keyboard navigation, screen reader compatibility, contrast ratios
+</what_to_scrutinize>
+
+<quality_bar>
+Think Stripe, Linear, Vercel — apps where every detail feels intentional:
+- No orphaned pixels or misaligned elements
+- Every action gives immediate, clear feedback
+- Error recovery is graceful, not jarring
+- The app anticipates what the user wants next
+- Nothing feels like an afterthought
+</quality_bar>
+
+<steps>
+1. Start as a new user — go through onboarding/setup if applicable
+2. Walk through the primary user journey end-to-end
+3. Walk through secondary flows (settings, edge cases, error paths)
+4. Document every friction point, no matter how small
+5. Prioritize: what's embarrassing vs. nice-to-have
+6. Fix quick wins immediately, create beads for larger issues
+7. Post UX audit via Agent Mail
+</steps>
+
+<output_format>
+## UX Audit Results
+
+### Critical (embarrassing if shipped)
+- <issue + location + suggested fix>
+
+### High (noticeably sub-optimal)
+- <issue + location + suggested fix>
+
+### Polish (would elevate quality)
+- <issue + location + suggested fix>
+
+### Praise (things that already feel great)
+- <what works well>
+</output_format>
+
+<constraints>
+- Do NOT only look at code — actually use the application
+- Do NOT skip mobile/responsive if applicable
+- Do NOT accept "it works" as sufficient — it must feel premium
+- Do NOT limit yourself to visual issues — workflow design matters more
 </constraints>
 ```
 
@@ -475,9 +627,10 @@ Perform a thorough review of uncommitted or recent changes. Think like a skeptic
 1. Run `git status` and `git diff` to see all changes
 2. For each file, ask: "What could go wrong here?"
 3. Trace data flow — where does input come from, where does output go?
-4. Check boundary conditions and error paths
-5. Look for security issues: injection, auth bypass, data exposure
-6. Verify tests exist and cover new code paths
+4. Cast a wider net: check files that import or are imported by changed files — changes ripple
+5. Check boundary conditions and error paths
+6. Look for security issues: injection, auth bypass, data exposure
+7. Verify tests exist and cover new code paths
 </steps>
 
 <output_format>
