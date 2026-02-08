@@ -408,6 +408,14 @@ Before claiming work, confirm you understand project conventions:
 - If unsure about workflow, check AGENTS.md before proceeding
 </pre_check>
 
+<safety_tools>
+DCG (Destructive Command Guard) is active as a hook. If it blocks a command:
+- Do NOT attempt to bypass or work around it
+- Reconsider whether the command is necessary
+- If genuinely needed, use `ntm approve` to request human sign-off
+- For dangerous ops (force push, rm -rf), use `slb run "<command>"` for two-person auth
+</safety_tools>
+
 <steps>
 1. Run `bd ready` to see beads with no blockers
 2. Check Agent Mail for any claimed work or active discussions
@@ -598,7 +606,7 @@ Closes: bd-a1b2c3
 ### Pre-Deploy Checks
 ```
 <instructions>
-Prepare for deployment. Catch issues before CI does.
+Prepare for deployment. Catch issues before CI does. Use SLB for any dangerous operations.
 </instructions>
 
 <steps>
@@ -609,7 +617,18 @@ Prepare for deployment. Catch issues before CI does.
 5. Run linter and formatter — commit any fixes
 6. Check for uncommitted changes: `git status`
 7. Ensure all beads are synced: `bd sync`
+8. For any dangerous commands, route through SLB: `slb run "<command>"`
 </steps>
+
+<slb_integration>
+SLB classifies commands by risk tier:
+- CRITICAL (2+ approvals): data destruction, production deploys
+- DANGEROUS (1 approval): force push, schema changes
+- CAUTION (auto-approved after 30s): minor risky ops
+- SAFE (skipped): read-only commands
+
+Check classification: `slb check "<command>"`
+</slb_integration>
 
 <example_ubs_output>
 $ ubs scan .
@@ -642,13 +661,20 @@ Push code and wait for CI. Do not spin or guess at failures.
 </instructions>
 
 <steps>
-1. Push to remote: `git push`
+1. Push to remote: `git push` (or `slb run "git push --force"` if force-pushing)
 2. Create PR if needed: `gh pr create`
 3. Note the CI/deploy URL
 4. STOP and WAIT — do not proceed until CI completes
 5. If CI passes, report success via Agent Mail
 6. If CI fails, proceed to debug_ci prompt
 </steps>
+
+<slb_reminder>
+If any deploy step requires a dangerous command (force push, production deploy, database migration):
+- Route through SLB: `slb run "<command>" --reason "<justification>"`
+- Wait for approval before proceeding
+- Check pending approvals: `ntm approve list`
+</slb_reminder>
 
 <example_success>
 Agent Mail message after CI passes:
