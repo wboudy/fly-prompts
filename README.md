@@ -28,13 +28,13 @@ make build
 
 ## Load in NTM
 
-Load the generated palette file:
+NTM CLI behavior varies by version. Use the approach supported by your install:
 
-```bash
-ntm palette load ./command_palette.md
-```
-
-If your local NTM CLI differs, run `ntm --help` and `ntm palette --help` first.
+- If your NTM supports file loading:
+  - `ntm palette load command_palette.md`
+- Otherwise:
+  - Open the NTM palette TUI and select repo-root `./command_palette.md` (auto-discovery).
+- If uncertain, run `ntm --help` and `ntm palette --help` first.
 
 ## Notes
 

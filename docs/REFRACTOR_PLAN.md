@@ -38,6 +38,7 @@ Use your local NTM command help to confirm exact subcommands:
 - `ntm --help`
 - `ntm palette --help`
 
-Then load the generated palette (or equivalent command shown by help):
+NTM CLI behavior varies by version. Load the generated palette with whichever path your install supports:
 
-- `ntm palette load ./command_palette.md`
+- If your NTM supports file loading: `ntm palette load command_palette.md`
+- Otherwise: open the NTM palette TUI and select repo-root `./command_palette.md` (auto-discovery).
