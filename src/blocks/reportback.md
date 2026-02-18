@@ -1,0 +1,2 @@
+- Report status, changed files, and validation results.
+- Call out blockers and explicit next steps.

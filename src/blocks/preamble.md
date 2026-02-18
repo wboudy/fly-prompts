@@ -1,0 +1,2 @@
+- Follow repository constraints and ownership boundaries.
+- Keep changes focused, deterministic, and minimal.
