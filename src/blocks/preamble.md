@@ -1,2 +1,4 @@
-- Follow repository constraints and ownership boundaries.
-- Keep changes focused, deterministic, and minimal.
+- Use one `thread_id` across all agents and include it in Agent Mail subjects.
+- Reserve file surfaces before edits (`claim`, `owner`, `paths`) and avoid overlap.
+- Keep non-doers read-only unless a new handoff explicitly reassigns ownership.
+- If command flags are unclear, run `br --help` (or tool-specific `--help`) before execution.

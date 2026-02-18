@@ -1,2 +1,3 @@
-- Report status, changed files, and validation results.
-- Call out blockers and explicit next steps.
+- Report: status, changed files, validations, and ownership handoff.
+- Include the sync gate result (`make lint`, `make build`, tests/tool checks run).
+- If blocked, name blocker, owner, and exact next action.
