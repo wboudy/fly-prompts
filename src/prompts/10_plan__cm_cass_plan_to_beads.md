@@ -1,3 +1,10 @@
+---
+command_key: /plan/cm-cass-plan-to-beads
+stage: plan
+include_in_palette: true
+title: "Plan: CASS Context to Beads"
+---
+
 ## Plan: CASS Context to Beads
 
 ### Goal

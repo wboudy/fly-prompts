@@ -1,3 +1,10 @@
+---
+command_key: /implement/claim-reserve-code-ubs-close
+stage: implement
+include_in_palette: true
+title: "Implement: Claim, Reserve, Code, UBS, Close"
+---
+
 ## Implement: Claim, Reserve, Code, UBS, Close
 
 ### Goal

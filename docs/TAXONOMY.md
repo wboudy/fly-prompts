@@ -4,7 +4,7 @@
 
 - `src/prompts/`: source prompt files compiled into the palette.
 - `src/blocks/`: reusable macro blocks referenced by prompts.
-- `src/legacy/`: preserved historical palette source.
+- `docs/legacy/`: preserved historical palette reference (non-runnable archive).
 - `scripts/`: build and lint tooling.
 - `docs/`: conventions, process, and handoff docs.
 
@@ -12,7 +12,7 @@
 
 Use lexicographic naming so execution order is stable.
 
-- Pattern: `NN_topic__action.md`
+- Pattern: `NN_stage__slug.md`
 - Examples:
   - `00_bootstrap__register_roles.md`
   - `10_plan__decompose.md`
@@ -30,6 +30,7 @@ Use lexicographic naming so execution order is stable.
 
 All prompts must include:
 
+- Frontmatter keys: `command_key`, `stage`, `include_in_palette`, `title`
 - Heading starting with `## `
 - `### Goal`, `### Inputs`, `### Instructions`, `### Output`
 - `{{PREAMBLE}}` and `{{REPORTBACK}}`

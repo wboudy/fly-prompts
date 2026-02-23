@@ -1,4 +1,4 @@
-.PHONY: build lint check
+.PHONY: build lint validate check
 
 build:
 	python3 scripts/build_palette.py
@@ -6,4 +6,7 @@ build:
 lint:
 	python3 scripts/lint_palette.py
 
-check: lint build
+validate:
+	python3 scripts/validate_palette_alignment.py
+
+check: lint build validate

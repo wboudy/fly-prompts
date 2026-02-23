@@ -1,3 +1,11 @@
+# Legacy Palette Archive (Non-Runnable)
+
+- Archived on: 2026-02-23
+- Purpose: preserve pre-conversion guidance while making palette generation prompt-file-only.
+- Status: historical reference only; not emitted into `command_palette.md`.
+
+---
+
 # Fly-Prompts: NTM Command Palette
 
 Battle-tested prompts for multi-agent coding workflows with the Flywheel stack.

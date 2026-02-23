@@ -1,3 +1,10 @@
+---
+command_key: /incident/bug-hunt-to-bead
+stage: incident
+include_in_palette: true
+title: "Incident: Bug Hunt to Bead"
+---
+
 ## Incident: Bug Hunt to Bead
 
 ### Goal

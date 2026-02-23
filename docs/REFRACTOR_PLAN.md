@@ -6,7 +6,7 @@ Ship in small, reviewable PRs with deterministic checks.
 
 1. Scaffold
 - Add `scripts/build_palette.py`, `scripts/lint_palette.py`, `Makefile`.
-- Move root palette to `src/legacy/command_palette.legacy.md`.
+- Archive historical palette reference under `docs/legacy/`.
 - Acceptance: `make lint`, `make build`.
 
 2. Docs
@@ -29,7 +29,7 @@ Ship in small, reviewable PRs with deterministic checks.
 - Run `make lint`.
 - Run `make build`.
 - Confirm `./command_palette.md` regeneration is intentional.
-- Confirm legacy content remains in `src/legacy/command_palette.legacy.md`.
+- Confirm no legacy section is emitted in `command_palette.md`.
 
 ## NTM Quick Test
 

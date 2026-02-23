@@ -1,3 +1,10 @@
+---
+command_key: /release/sync-gate-slb-deploy
+stage: release
+include_in_palette: true
+title: "Release: Sync Gate, SLB, Deploy"
+---
+
 ## Release: Sync Gate, SLB, Deploy
 
 ### Goal

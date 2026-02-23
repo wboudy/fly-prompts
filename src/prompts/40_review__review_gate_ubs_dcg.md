@@ -1,3 +1,10 @@
+---
+command_key: /review/review-gate-ubs-dcg
+stage: review
+include_in_palette: true
+title: "Review: Quality Gate with UBS and DCG"
+---
+
 ## Review: Quality Gate with UBS and DCG
 
 ### Goal

@@ -1,3 +1,10 @@
+---
+command_key: /bootstrap/register-roles
+stage: bootstrap
+include_in_palette: true
+title: "Bootstrap: Register Roles and Thread"
+---
+
 ## Bootstrap: Register Roles and Thread
 
 ### Goal
