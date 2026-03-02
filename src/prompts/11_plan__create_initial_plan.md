@@ -18,11 +18,33 @@ Draft a strong initial plan, then improve it with one explicit pre-implementatio
 ### Instructions
 {{PREAMBLE}}
 
+Context Gathering (run before planning):
+```bash
+cass search "<feature keywords>" --limit 10                    # prior art
+rg "class.*<RelatedConcept>" --type py -l | head -10          # existing patterns
+bd list --status=closed --limit=20 | grep -i "<area>"         # past work in area
+```
+
 Plan-space workflow:
-- Search for prior art: `cass search "<feature or problem>" --limit 5`
-- Review existing architecture: read README, AGENTS.md, key source files
-- Identify constraints: performance, compatibility, dependencies
-- Sketch state transitions, data flow, and component boundaries.
+1. Search for prior art using commands above
+2. Review existing architecture: read README, AGENTS.md, key source files
+3. Identify constraints: performance, compatibility, dependencies
+4. Sketch state transitions, data flow, and component boundaries
+
+When to Sketch Architecture:
+- **Use state machine** when: >2 user-facing states (auth flows, wizards, async jobs)
+- **Use data flow** when: data transforms across >2 services
+- **Use component diagram** when: failure modes matter (payments, data sync)
+- **Skip diagrams** for: pure refactors, bug fixes, config/cosmetic changes
+
+State Machine Format (when applicable):
+```
+States: [list]
+Transitions:
+  <from> → <to>: <trigger>
+Initial: <state>
+Terminal: [states]
+```
 
 Plan Review Loop (pre-implementation, copy/paste template):
 ```text

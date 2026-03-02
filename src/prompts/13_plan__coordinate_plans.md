@@ -19,9 +19,37 @@ Coordinate multiple planning streams and produce one aligned execution plan.
 {{PREAMBLE}}
 
 Coordination workflow:
-- Collect active plan proposals and identify overlap/conflict.
-- Align ownership and sequencing before implementation starts.
-- Keep one merged plan as source and track rejected alternatives explicitly.
+1. Identify active agents and their claims:
+   ```bash
+   ntm activity forecasting --json 2>/dev/null || ntm activity
+   bd list --status=in_progress
+   ```
+2. Collect active plan proposals and identify overlap/conflict
+3. Align ownership and sequencing before implementation starts
+4. Keep one merged plan as source and track rejected alternatives explicitly
+
+Agent Mail Coordination Examples:
+```
+Subject: [COORD] TealPeak + CopperHawk file overlap on src/auth/*
+
+Body:
+I'm claiming src/auth/login.py and src/auth/session.py for bd-XXXX.
+You mentioned working on auth — which files do you need?
+Reply within 10 min or I'll proceed with my claim.
+```
+
+```
+Subject: [COORD-ACK] Confirmed split
+
+Body:
+Agreed. I'll take middleware.py, you take login.py + session.py.
+Proceeding.
+```
+
+Timeout Protocol:
+- If no response in 15 minutes, check agent activity: `ntm activity <session>`
+- If agent idle >10min, proceed with your claim and note "unconfirmed split"
+- If agent active, ping directly: `ntm send <session> --pane=X "Waiting on coord ack for <files>"`
 
 Multi-Model Hybridization (copy/paste template):
 ```text

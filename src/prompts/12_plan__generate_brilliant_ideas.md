@@ -18,13 +18,35 @@ Expand option space, then converge on high-value plan improvements.
 ### Instructions
 {{PREAMBLE}}
 
-Idea workflow:
+Discovery Phase (run these first):
+```bash
+rg "TODO|FIXME|HACK" --type py -c | sort -t: -k2 -nr | head -10  # existing pain points
+cass search "slow|bug|error|crash" --days 14 --limit 10          # recent complaints
+bd list --status=closed --limit=20 | head -20                     # patterns in past work
+```
+
+Idea Generation (20-30 minimum):
+- Cover all categories: performance, reliability, UX, DX, security, maintainability
 - Include wild ideas, safe ideas, and everything between
 - Do not self-censor during generation
-- Aim for quantity over quality in this phase
-- Impact: How much value does this deliver?
-- Effort: How hard is this to implement? (10 = easy, 1 = hard)
-- Select top candidates by value-to-effort ratio.
+- Stop when you've addressed each category at least twice
+
+Scoring Anchors:
+```
+Impact (1-10):
+  10: Fixes production outage or security hole
+   7: Measurable perf/UX improvement for most users
+   4: Developer experience improvement
+   1: Cosmetic or hypothetical benefit
+
+Effort (1-10, inverted - 10=easy):
+  10: One-line fix, no tests needed
+   7: Single file, <50 lines, tests exist
+   4: Multi-file, new tests required
+   1: Architectural change, multi-day work
+```
+
+Select top candidates by Impact/Effort ratio (higher = better).
 
 Radical Innovation Nudge (copy/paste template):
 ```text
@@ -48,6 +70,15 @@ Coordination Note:
 {{REPORTBACK}}
 
 ### Output
-- Ranked idea shortlist with rationale.
-- Chosen ideas integrated into plan/issue tracker.
-- Explicitly rejected ideas and why.
+Format your idea ranking as:
+
+| Idea | Impact | Effort | Ratio | Action |
+|------|--------|--------|-------|--------|
+| Fix N+1 query in /users | 8 | 9 | 0.89 | `bd create --priority=2` |
+| Add retry logic to API | 6 | 7 | 0.86 | `bd create --priority=3` |
+| Rewrite auth from scratch | 9 | 2 | 0.22 | Rejected: too costly |
+
+Then report:
+- Top 5 ideas converted to beads (with IDs)
+- Rejected ideas and one-line rationale each
+- Categories not covered (if any)

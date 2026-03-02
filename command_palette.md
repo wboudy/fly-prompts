@@ -473,11 +473,33 @@ Draft a strong initial plan, then improve it with one explicit pre-implementatio
 - Keep non-doers read-only unless a new handoff explicitly reassigns ownership.
 - If command flags are unclear, run `br --help` (or tool-specific `--help`) before execution.
 
+Context Gathering (run before planning):
+```bash
+cass search "<feature keywords>" --limit 10                    # prior art
+rg "class.*<RelatedConcept>" --type py -l | head -10          # existing patterns
+bd list --status=closed --limit=20 | grep -i "<area>"         # past work in area
+```
+
 Plan-space workflow:
-- Search for prior art: `cass search "<feature or problem>" --limit 5`
-- Review existing architecture: read README, AGENTS.md, key source files
-- Identify constraints: performance, compatibility, dependencies
-- Sketch state transitions, data flow, and component boundaries.
+1. Search for prior art using commands above
+2. Review existing architecture: read README, AGENTS.md, key source files
+3. Identify constraints: performance, compatibility, dependencies
+4. Sketch state transitions, data flow, and component boundaries
+
+When to Sketch Architecture:
+- **Use state machine** when: >2 user-facing states (auth flows, wizards, async jobs)
+- **Use data flow** when: data transforms across >2 services
+- **Use component diagram** when: failure modes matter (payments, data sync)
+- **Skip diagrams** for: pure refactors, bug fixes, config/cosmetic changes
+
+State Machine Format (when applicable):
+```
+States: [list]
+Transitions:
+  <from> → <to>: <trigger>
+Initial: <state>
+Terminal: [states]
+```
 
 Plan Review Loop (pre-implementation, copy/paste template):
 ```text
@@ -528,13 +550,35 @@ Expand option space, then converge on high-value plan improvements.
 - Keep non-doers read-only unless a new handoff explicitly reassigns ownership.
 - If command flags are unclear, run `br --help` (or tool-specific `--help`) before execution.
 
-Idea workflow:
+Discovery Phase (run these first):
+```bash
+rg "TODO|FIXME|HACK" --type py -c | sort -t: -k2 -nr | head -10  # existing pain points
+cass search "slow|bug|error|crash" --days 14 --limit 10          # recent complaints
+bd list --status=closed --limit=20 | head -20                     # patterns in past work
+```
+
+Idea Generation (20-30 minimum):
+- Cover all categories: performance, reliability, UX, DX, security, maintainability
 - Include wild ideas, safe ideas, and everything between
 - Do not self-censor during generation
-- Aim for quantity over quality in this phase
-- Impact: How much value does this deliver?
-- Effort: How hard is this to implement? (10 = easy, 1 = hard)
-- Select top candidates by value-to-effort ratio.
+- Stop when you've addressed each category at least twice
+
+Scoring Anchors:
+```
+Impact (1-10):
+  10: Fixes production outage or security hole
+   7: Measurable perf/UX improvement for most users
+   4: Developer experience improvement
+   1: Cosmetic or hypothetical benefit
+
+Effort (1-10, inverted - 10=easy):
+  10: One-line fix, no tests needed
+   7: Single file, <50 lines, tests exist
+   4: Multi-file, new tests required
+   1: Architectural change, multi-day work
+```
+
+Select top candidates by Impact/Effort ratio (higher = better).
 
 Radical Innovation Nudge (copy/paste template):
 ```text
@@ -560,9 +604,18 @@ Coordination Note:
 - If blocked, name blocker, owner, and exact next action.
 
 ### Output
-- Ranked idea shortlist with rationale.
-- Chosen ideas integrated into plan/issue tracker.
-- Explicitly rejected ideas and why.
+Format your idea ranking as:
+
+| Idea | Impact | Effort | Ratio | Action |
+|------|--------|--------|-------|--------|
+| Fix N+1 query in /users | 8 | 9 | 0.89 | `bd create --priority=2` |
+| Add retry logic to API | 6 | 7 | 0.86 | `bd create --priority=3` |
+| Rewrite auth from scratch | 9 | 2 | 0.22 | Rejected: too costly |
+
+Then report:
+- Top 5 ideas converted to beads (with IDs)
+- Rejected ideas and one-line rationale each
+- Categories not covered (if any)
 
 ## Coordinate Plans
 
@@ -581,9 +634,37 @@ Coordinate multiple planning streams and produce one aligned execution plan.
 - If command flags are unclear, run `br --help` (or tool-specific `--help`) before execution.
 
 Coordination workflow:
-- Collect active plan proposals and identify overlap/conflict.
-- Align ownership and sequencing before implementation starts.
-- Keep one merged plan as source and track rejected alternatives explicitly.
+1. Identify active agents and their claims:
+   ```bash
+   ntm activity forecasting --json 2>/dev/null || ntm activity
+   bd list --status=in_progress
+   ```
+2. Collect active plan proposals and identify overlap/conflict
+3. Align ownership and sequencing before implementation starts
+4. Keep one merged plan as source and track rejected alternatives explicitly
+
+Agent Mail Coordination Examples:
+```
+Subject: [COORD] TealPeak + CopperHawk file overlap on src/auth/*
+
+Body:
+I'm claiming src/auth/login.py and src/auth/session.py for bd-XXXX.
+You mentioned working on auth — which files do you need?
+Reply within 10 min or I'll proceed with my claim.
+```
+
+```
+Subject: [COORD-ACK] Confirmed split
+
+Body:
+Agreed. I'll take middleware.py, you take login.py + session.py.
+Proceeding.
+```
+
+Timeout Protocol:
+- If no response in 15 minutes, check agent activity: `ntm activity <session>`
+- If agent idle >10min, proceed with your claim and note "unconfirmed split"
+- If agent active, ping directly: `ntm send <session> --pane=X "Waiting on coord ack for <files>"`
 
 Multi-Model Hybridization (copy/paste template):
 ```text
@@ -969,12 +1050,32 @@ Execute the legacy "Fresh Eyes: Peer Review" workflow as a prompt-backed, stage-
 - Keep non-doers read-only unless a new handoff explicitly reassigns ownership.
 - If command flags are unclear, run `br --help` (or tool-specific `--help`) before execution.
 
-Workflow (condensed from legacy command):
-- Review fellow-agent changes across a recent window (for example, last 7 days), not just the latest commit.
-- For each peer change, inspect touched files and neighboring/import-linked files.
-- Follow the ripple: verify assumptions still hold across dependent modules.
-- Use first-principles analysis; diagnose root causes before proposing fixes.
-- Check for bugs, inefficiencies, security issues, and reliability gaps in peer-written code.
+Review Scope Discovery:
+```bash
+# Find commits from other agents (not you)
+git log --all --oneline --since="7 days ago" | head -30
+
+# See which files changed recently
+git diff --stat HEAD~20..HEAD | tail -20
+
+# Focus on files touched by others
+git log --name-only --pretty=format: --since="3 days ago" | sort -u | head -30
+```
+
+Workflow:
+1. Identify peer changes using commands above
+2. For each peer change, inspect touched files AND neighboring/import-linked files
+3. Follow the ripple: verify assumptions still hold across dependent modules
+4. Use first-principles analysis; diagnose root causes before proposing fixes
+5. Check for bugs, inefficiencies, security issues, and reliability gaps
+
+Severity Classification:
+```
+P0 (block merge): Security holes, data loss, crashes
+P1 (fix before ship): Logic bugs, race conditions, missing validation
+P2 (should fix): Perf issues, error handling gaps, test coverage
+P3 (nice to have): Style, naming, minor refactors
+```
 
 Peer-Agent Review Template (copy/paste):
 ```text
@@ -998,9 +1099,18 @@ Coordination Note:
 - If blocked, name blocker, owner, and exact next action.
 
 ### Output
-- What was done, what is next, and who owns the next action.
-- Key commands/checks executed and their outcomes.
-- Any blockers and explicit handoff details.
+Format findings as:
+
+| File:Line | Severity | Issue | Suggested Fix |
+|-----------|----------|-------|---------------|
+| auth.py:42 | P1 | SQL injection via f-string | Use parameterized query |
+| utils.py:88 | P2 | Unbounded list growth | Add max size check |
+
+Then report:
+- Files reviewed (count)
+- Issues found by severity (P0/P1/P2/P3 counts)
+- Fixes applied vs beads created vs escalated
+- Clean files (no issues found)
 
 ## Fresh Eyes: UX Polish
 
